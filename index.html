@@ -170,8 +170,32 @@ select{font:inherit;padding:10px;border-radius:14px;border:3px solid var(--edge)
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--edge);color:#fff;padding:10px 18px;border-radius:14px;font-size:15px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;z-index:9}
 .toast.on{opacity:1}
 @media(max-width:700px){.logo{flex-basis:100%;font-size:19px;white-space:nowrap}.hero,.room{grid-template-columns:minmax(0,1fr)}.hero .avwrap{max-width:210px}
- .cam{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:start}.frame{grid-row:span 2}.frame .avwrap{max-width:100px}.tag{font-size:11px;padding:1px 6px}.tools{grid-column:1/-1}.board{min-height:170px}}
+ .board{min-height:170px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.board .word span{opacity:1}}
+/* video-call tile */
+.frame{padding:0;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+.frame .avwrap{max-width:none!important;width:100%;height:100%}
+.frame .avwrap svg{width:100%;height:100%}
+.frame .avwrap svg:not(.person){max-width:78%;margin:auto}
+.tag{top:10px;bottom:auto;z-index:2;background:#000a;backdrop-filter:blur(4px)}
+.bubble.caption{margin-top:-14px;background:#14123a;color:#fff;border:3px solid var(--edge);border-top:0;border-radius:0 0 20px 20px;font-size:19px;line-height:1.4;padding:16px 14px 10px;min-height:52px}
+.bubble.caption .he{color:#ffe7a1;border-color:#fff4}
+.bubble.caption .pair .he{color:#ffe7a1}
+.bubble.caption .pair+.pair{border-color:#fff3}
+.frame{border-radius:20px 20px 6px 6px}
+svg.person{display:block}
+.avwrap svg.person{border-radius:18px}
+.hero .avwrap svg.person,.tcard svg.person,.done-card svg.person{border:3px solid var(--edge)}
+.hand{opacity:0;transition:opacity .25s}.hand .hw{transform:translateY(110px);transition:transform .45s cubic-bezier(.3,1.4,.5,1)}
+.g-wave .hand.wave,.g-thumb .hand.thumb{opacity:1}.g-wave .hand.wave .hw,.g-thumb .hand.thumb .hw{transform:none}
+.g-wave .hand.wave .hw{animation:waveh .42s .35s 4 alternate ease-in-out;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes waveh{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.happy .avatar.person{animation:none}
+.avwrap .avatar.person{animation:none}
+.frame.listen .avatar,.frame.think .avatar{animation:none}
+.frame.listen{box-shadow:0 0 0 5px var(--mint),0 6px 0 var(--edge)}
+.tcard .avwrap{max-width:240px}.hero .avwrap{max-width:380px}.done-card .avwrap{max-width:260px}
+@media(max-width:700px){.cam{display:flex!important}.frame .avwrap{max-width:none!important}.bubble.caption{font-size:17px}}
 </style>
 </head>
 <body>
@@ -205,7 +229,7 @@ select{font:inherit;padding:10px;border-radius:14px;border:3px solid var(--edge)
   <div class="room">
     <div class="cam stk">
       <div class="frame"><div class="avwrap" id="lessonAv"></div><span class="tag" id="camTag">Ms. Lily</span></div>
-      <div class="bubble" id="bubble"></div>
+      <div class="bubble caption" id="bubble"></div>
       <div class="tools">
         <button id="againBtn">🔁 Again</button>
         <button id="helpBtn">🤔 לא הבנתי</button>
@@ -310,6 +334,87 @@ const TEACHERS={
  leo:{name:'Mr. Leo',voice:'rounded',pitch:.95,he:'מורה אנרגטי שאוהב ספורט ובדיחות',persona:'a fun, energetic young American English teacher who loves soccer, high-fives and silly jokes'},
  pip:{name:'Pip',voice:'airy',pitch:1.25,he:'שועל שובב ומצחיק שאוהב חטיפים',persona:'Pip, a cheeky, giggly fox who teaches English, loves snacks and making kids laugh (but always kind and clear)'},
  luna:{name:'Luna',voice:'glassy',pitch:1.05,he:'ינשופה רגועה וחכמה שמסבירה בשקט',persona:'Luna, a calm, gentle and wise owl who teaches English softly and patiently, with a little magic in her words'}};
+
+// ---------- lifelike teacher: an illustrated young person in a webcam-style room ----------
+function buildPerson(o){
+ const sk=o.skin,skd=o.skinD,hr=o.hair,top=o.top,topD=o.topD;
+ const longHair=o.style==='long';
+ return `<svg class="avatar person" viewBox="0 0 400 300" role="img" aria-label="${o.name}" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="lt-${o.id}" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<g class="bg">
+ <rect width="400" height="300" fill="${o.wall}"/>
+ <rect x="292" y="16" width="96" height="118" rx="6" fill="#cfeeff" stroke="#fff" stroke-width="6"/><path d="M340 16v118M292 75h96" stroke="#fff" stroke-width="5"/>
+ <rect x="14" y="34" width="96" height="170" rx="4" fill="#b7814f"/><rect x="20" y="40" width="84" height="158" fill="#9a6a3f"/>
+ <path d="M20 92h84M20 146h84" stroke="#b7814f" stroke-width="6"/>
+ <g>${[['#ff4fa3',24,52,11,38],['#4fb6ff',37,46,9,44],['#ffc83d',48,56,12,34],['#2bd08a',62,50,10,40],['#ff7a3d',74,58,9,32],['#7b6cf6',85,48,12,42],['#ffc83d',26,104,12,40],['#ff4fa3',40,110,9,34],['#4fb6ff',51,100,13,44],['#2bd08a',66,108,10,36],['#ff7a3d',78,104,11,40]].map(([c,x,y,w,h])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${c}"/>`).join('')}</g>
+ <circle cx="60" cy="172" r="16" fill="#2bd08a"/><rect x="48" y="176" width="24" height="20" rx="4" fill="#ff7a3d"/>
+ <g transform="rotate(-4 160 44)"><rect x="128" y="20" width="66" height="48" rx="4" fill="#fff"/><text x="161" y="54" font-family="Fredoka,sans-serif" font-size="22" font-weight="700" text-anchor="middle" fill="#ff4fa3">ABC</text></g>
+ <path d="M322 238c-14-30-6-58 8-74M334 238c4-32 18-52 34-60M328 238c-22-18-34-26-46-26" stroke="#1f9d6b" stroke-width="7" fill="none" stroke-linecap="round"/>
+ <ellipse cx="330" cy="166" rx="12" ry="22" fill="#2bd08a" transform="rotate(-20 330 166)"/><ellipse cx="366" cy="178" rx="11" ry="20" fill="#2bd08a" transform="rotate(50 366 178)"/><ellipse cx="286" cy="214" rx="10" ry="19" fill="#2bd08a" transform="rotate(-70 286 214)"/>
+ <rect x="306" y="236" width="46" height="40" rx="6" fill="#ff7a3d"/>
+ <rect width="400" height="300" fill="url(#lt-${o.id})"/>
+</g>
+<g class="torso">
+ ${longHair?`<path d="M124 150C116 92 156 50 200 50s86 42 78 100c4 56-6 96-22 112H146c-16-16-26-56-22-112z" fill="${hr}"/>`:''}
+ <path d="M84 300c6-56 50-80 116-80s110 24 116 80z" fill="${top}"/>
+ <path d="M84 300c6-56 50-80 116-80" fill="none" stroke="${topD}" stroke-width="4" opacity=".35"/>
+ <path d="M172 222l28 30 28-30" fill="#fff"/><path d="M172 222l28 30 28-30" fill="none" stroke="${topD}" stroke-width="3"/>
+ <rect x="182" y="188" width="36" height="44" rx="14" fill="${skd}"/>
+</g>
+<g class="head">
+ ${longHair?`<path d="M136 170c-6 40 2 70 14 84h-20c-12-26-14-58-6-86zM264 170c6 40-2 70-14 84h20c12-26 14-58 6-86z" fill="${hr}"/>`:''}
+ <ellipse cx="141" cy="148" rx="9" ry="14" fill="${skd}"/><ellipse cx="259" cy="148" rx="9" ry="14" fill="${skd}"/>
+ ${o.hoops?`<circle cx="140" cy="168" r="6" fill="none" stroke="#ffc83d" stroke-width="2.5"/><circle cx="260" cy="168" r="6" fill="none" stroke="#ffc83d" stroke-width="2.5"/>`:''}
+ <path d="M142 130c0-45 28-58 58-58s58 13 58 58c0 50-26 84-58 84s-58-34-58-84z" fill="${sk}"/>
+ ${longHair?`<path d="M138 132c-4-44 26-70 64-70 38 0 64 26 60 70-12-22-34-38-62-36-18 10-40 18-62 36z" fill="${hr}"/><path d="M146 96c18-22 40-30 56-30 24 0 42 10 54 28" fill="none" stroke="${o.band}" stroke-width="7" stroke-linecap="round"/>`
+  :`<path d="M140 128c-6-42 22-66 60-66s68 22 62 66c-6-14-14-24-22-28-12 8-32 10-50 4-16 6-34 12-50 24z" fill="${hr}"/>${[150,166,184,202,220,238,250].map((x,i)=>`<circle cx="${x}" cy="${72+Math.abs(3-i)*6}" r="${13-Math.abs(3-i)}" fill="${hr}"/>`).join('')}`}
+ <g class="brows" stroke="${o.brow}" stroke-width="4.5" stroke-linecap="round" fill="none"><path d="M162 119q14-8 27-1"/><path d="M211 118q13-7 27 1"/></g>
+ ${[176,224].map(cx=>`<g class="eye" data-cx="${cx}" data-cy="138"><ellipse cx="${cx}" cy="138" rx="12" ry="9" fill="#fff"/><g class="iris"><circle cx="${cx}" cy="139" r="6.5" fill="${o.iris}"/><circle cx="${cx}" cy="139" r="3.2" fill="#1b1020"/><circle cx="${cx-2.2}" cy="136.6" r="1.8" fill="#fff"/></g><path d="M${cx-13} 136q13-12 26 0" fill="none" stroke="#2a1a14" stroke-width="2.6" stroke-linecap="round"/>${o.lashes?`<path d="M${cx+(cx<200?-12:12)} 135l${cx<200?-5:5}-4" stroke="#2a1a14" stroke-width="2.2" stroke-linecap="round"/>`:''}</g>`).join('')}
+ <path d="M200 142q-4 15-8 20q8 4 15 0" fill="none" stroke="${o.nose}" stroke-width="2.6" stroke-linecap="round"/>
+ <ellipse class="blushp" cx="162" cy="168" rx="12" ry="7" fill="#ff7f8f" opacity=".32"/><ellipse class="blushp" cx="238" cy="168" rx="12" ry="7" fill="#ff7f8f" opacity=".32"/>
+ <g class="mouthg"><path class="mopen" fill="#7d1f2e"/><path class="teeth" fill="#fff"/><path class="lips" fill="none" stroke="${o.lip}" stroke-width="3" stroke-linecap="round"/></g>
+</g>
+<g class="hand wave" transform="translate(112 196)"><g class="hw"><rect x="-22" y="34" width="44" height="80" rx="16" fill="${top}"/><rect x="-18" y="-6" width="36" height="42" rx="15" fill="${sk}"/>${[-15,-6,3,12].map((x,i)=>`<rect x="${x}" y="${-34+Math.abs(1.5-i)*4}" width="8" height="34" rx="4" fill="${sk}"/>`).join('')}<rect x="14" y="2" width="9" height="26" rx="4.5" fill="${sk}" transform="rotate(35 18 15)"/></g></g>
+<g class="hand thumb" transform="translate(292 206)"><g class="hw"><rect x="-22" y="26" width="44" height="80" rx="16" fill="${top}"/><rect x="-20" y="-8" width="40" height="38" rx="13" fill="${sk}"/><path d="M-14 4h28M-14 14h28" stroke="${skd}" stroke-width="2"/><rect x="-7" y="-42" width="14" height="38" rx="7" fill="${sk}"/></g></g>
+</svg>`}
+const LILY={id:'lily',name:'Ms. Lily',style:'long',skin:'#f6cfb2',skinD:'#e9b796',hair:'#4a2a1a',band:'#ff4fa3',brow:'#3b2014',iris:'#7a4a2a',nose:'#d99a7c',lip:'#d6506a',top:'#ff6f91',topD:'#c23d63',wall:'#ffe2d2',hoops:true,lashes:true};
+const LEO={id:'leo',name:'Mr. Leo',style:'curly',skin:'#d9a27a',skinD:'#c48a63',hair:'#2a1a12',brow:'#22140c',iris:'#4a2e1c',nose:'#b97b58',lip:'#b4545a',top:'#2bb9a0',topD:'#178a75',wall:'#dcefff',hoops:false,lashes:false};
+AV.lily=buildPerson(LILY);AV.leo=buildPerson(LEO);
+TEACHERS.lily.he='מורה צעירה ושמחה, תמיד עם חיוך';TEACHERS.lily.persona='a young, bubbly 24-year-old American English teacher who smiles a lot, loves music and books, and gets genuinely excited about her student';
+TEACHERS.leo.he='מורה צעיר ואנרגטי שאוהב ספורט';
+
+// ---------- the rig: lip-sync to the real voice, blinking, looking, eyebrows, head motion ----------
+let lipAn=null,lipBuf=null,browUntil=0;
+function lipNode(){const a=audio();if(!a)return null;if(!lipAn){lipAn=a.createAnalyser();lipAn.fftSize=1024;lipBuf=new Float32Array(lipAn.fftSize);lipAn.connect(a.destination)}return lipAn}
+function lipLevel(t){if(curSrc&&lipAn){lipAn.getFloatTimeDomainData(lipBuf);let s=0;for(let i=0;i<lipBuf.length;i+=2)s+=lipBuf[i]*lipBuf[i];return Math.min(1,Math.sqrt(s/(lipBuf.length/2))*7.5)}
+ return Math.max(0,Math.min(1,.38+Math.sin(t/68)*.3+Math.sin(t/111)*.22))}
+function mouthPaths(o,sm){const w=15+sm*4,cy=181-sm*2,top=cy-1+sm*1.5,bot=cy+3+sm*3+o*15;
+ return{open:`M${200-w} ${cy}Q200 ${top} ${200+w} ${cy}Q200 ${bot} ${200-w} ${cy}z`,
+  teeth:o>.12?`M${200-w*.72} ${cy+.5}Q200 ${top+1} ${200+w*.72} ${cy+.5}Q200 ${cy+3+o*3} ${200-w*.72} ${cy+.5}z`:'',
+  lips:`M${200-w} ${cy}Q200 ${top-1} ${200+w} ${cy}M${200-w+1} ${cy+.5}Q200 ${bot+2} ${200+w-1} ${cy+.5}`}}
+function rigTick(t){
+ for(const svg of document.querySelectorAll('svg.person')){if(!svg.isConnected||!svg.getClientRects().length)continue;
+  const st=svg._st||(svg._st={blink:t+1500+Math.random()*2000,look:t+900,lx:0,ly:0,tx:0,ty:0,m:0,sm:.5,br:0});
+  const wrap=svg.closest('.avwrap'),fr=svg.closest('.frame');
+  const talk=wrap?.classList.contains('talking'),happy=wrap?.classList.contains('happy'),listen=fr?.classList.contains('listen'),think=fr?.classList.contains('think');
+  st.m+=((talk?lipLevel(t):0)-st.m)*(talk?.5:.25);
+  st.sm+=((happy?1:listen?.75:talk?.55:.5)-st.sm)*.08;
+  st.br+=((happy||t<browUntil?1:think?.7:listen?.35:0)-st.br)*.12;
+  if(t>st.look){st.look=t+1100+Math.random()*2600;if(think){st.tx=4;st.ty=-3.5}else if(Math.random()<.62){st.tx=0;st.ty=.4}else{st.tx=(Math.random()*2-1)*3.6;st.ty=(Math.random()*2-1)*1.8}}
+  st.lx+=(st.tx-st.lx)*.22;st.ly+=(st.ty-st.ly)*.22;
+  let lid=1;if(t>st.blink){const p=(t-st.blink)/150;if(p<1)lid=Math.max(.08,Math.abs(1-2*p));else st.blink=t+(Math.random()<.18?220:2200+Math.random()*3600)}
+  const tilt=listen?4.5+Math.sin(t/320)*1.5:think?-3.5:0,sway=Math.sin(t/1500)*1.4+(talk?Math.sin(t/260)*1.1+Math.sin(t/410)*.8:0),nod=listen?Math.max(0,Math.sin(t/260))*2.2:0;
+  svg.querySelector('.head')?.setAttribute('transform',`rotate(${(sway+tilt).toFixed(2)} 200 214) translate(0 ${(Math.sin(t/1900)*1.2+nod).toFixed(2)})`);
+  svg.querySelector('.torso')?.setAttribute('transform',`translate(0 ${(Math.sin(t/1900)*1.3).toFixed(2)})`);
+  svg.querySelectorAll('.iris').forEach(e=>e.setAttribute('transform',`translate(${st.lx.toFixed(2)} ${st.ly.toFixed(2)})`));
+  svg.querySelectorAll('.eye').forEach(e=>{const cx=+e.dataset.cx,cy=+e.dataset.cy;e.setAttribute('transform',`translate(${cx} ${cy}) scale(1 ${lid.toFixed(2)}) translate(${-cx} ${-cy})`)});
+  svg.querySelector('.brows')?.setAttribute('transform',`translate(0 ${(-st.br*4.5).toFixed(2)})`);
+  const mp=mouthPaths(st.m,st.sm);svg.querySelector('.mopen')?.setAttribute('d',mp.open);svg.querySelector('.teeth')?.setAttribute('d',mp.teeth);svg.querySelector('.lips')?.setAttribute('d',mp.lips);
+  svg.querySelectorAll('.blushp').forEach(e=>e.setAttribute('opacity',(.28+st.sm*.18).toFixed(2)))}
+ requestAnimationFrame(rigTick)}
+requestAnimationFrame(rigTick);
+function gesture(name){document.querySelectorAll('svg.person').forEach(svg=>{svg.classList.remove('g-wave','g-thumb');void svg.getBBox;svg.classList.add('g-'+name);clearTimeout(svg._gt);svg._gt=setTimeout(()=>svg.classList.remove('g-'+name),2200)})}
+
 const TT=()=>TEACHERS[S.teacher]||TEACHERS.lily;
 const av=()=>AV[S.teacher]||AV.lily;
 const face=(cls,on)=>document.querySelectorAll('.avwrap').forEach(a=>a.classList.toggle(cls,on));
@@ -346,7 +451,7 @@ function elAudio(text,lang){const vid=voiceFor();const key=vid+'|'+ttsModel+'|'+
  return ttsCache.get(key)}
 // Never let one stuck sound block the teacher: resolve after the clip's length even if 'ended' never fires (iOS can interrupt audio).
 let curDone=null;
-function playBuf(buf){return new Promise(res=>{const a=audio();try{a.resume()}catch(e){}const s=a.createBufferSource();s.buffer=buf;s.connect(a.destination);
+function playBuf(buf){return new Promise(res=>{const a=audio();try{a.resume()}catch(e){}const s=a.createBufferSource();s.buffer=buf;const an=lipNode();s.connect(an||a.destination);
  let done=false;const fin=()=>{if(done)return;done=true;clearTimeout(tm);if(curSrc===s){curSrc=null;curDone=null}res()};
  const tm=setTimeout(fin,buf.duration*1000+1500);s.onended=fin;curSrc=s;curDone=fin;try{s.start(0)}catch(e){fin()}})}
 let voiceErr='';
@@ -363,7 +468,7 @@ function hush(){speakId++;speakChain=Promise.resolve();stopAudio();talking=false
 function sayWord(w){if(!talking&&!muted&&w)say(w)}
 async function doSay(en,he,lines,id){if(muted)return;
  const segs=[];if(lines&&lines.length){for(const l of lines){if(l.en)segs.push([String(l.en),'en']);if(l.he)segs.push([String(l.he),'he'])}}else{if(en)segs.push([String(en),'en']);if(he)segs.push([String(he),'he'])}
- if(!segs.length)return;talking=true;face('talking',true);
+ if(!segs.length)return;talking=true;face('talking',true);if(segs.some(x=>/\?/.test(x[0])))browUntil=performance.now()+2500;
  try{
   if(K.el&&voiceFor()){const ps=segs.map(([t,lg])=>elAudio(lg==='he'||!TAGGY()?stripTags(t):t,lg));ps.forEach(p=>p.catch(()=>{}));
    for(const p of ps){const b=await p;if(id!==speakId)break;await playBuf(b);if(id!==speakId)break}voiceErr=''}
@@ -411,7 +516,7 @@ function renderPick(then){pickThen=then;const keep=S.teacher;
   c.querySelector('.avwrap').classList.add('happy');setTimeout(()=>c.querySelector('.avwrap').classList.remove('happy'),600);
   const lines={lily:"Hi Agam! I'm Ms. Lily. Let's read, play and laugh together!",leo:"Hey Agam! I'm Mr. Leo. Ready for some English fun? High five!",pip:"Hee hee! Hi Agam, I'm Pip the fox. Let's play word games!",luna:"Hello, Agam. I'm Luna the owl. We'll learn English together, step by step."};
   document.querySelectorAll('.tcard .avwrap').forEach(a=>a.classList.remove('talking'));hush();
-  const w=c.querySelector('.avwrap');w.classList.add('talking');say(lines[k]).finally(()=>w.classList.remove('talking'));S.teacher=prev});
+  const w=c.querySelector('.avwrap');w.classList.add('talking');c.querySelector('svg.person')&&(c.querySelector('svg.person').classList.add('g-wave'),setTimeout(()=>c.querySelector('svg.person')?.classList.remove('g-wave'),2200));say(lines[k]).finally(()=>w.classList.remove('talking'));S.teacher=prev});
  show('pick')}
 
 // ---------- task UI ----------
@@ -534,7 +639,7 @@ let T=null;
 function startTest(){
  L=null;T={lv:1,asked:[],used:new Set(),n:0,spoke:false};paintTeacher();show('lesson');clearBoard();$('#helpBtn').hidden=true;
  const hi=`Hi Agam! I'm ${TT().name}. Let's play a quick game. Just do your best!`;
- setBubble(hi,'שלום אגם! בואי נשחק משחק קצר. אין פה ציון, פשוט תנסי.');say(hi);setTimeout(testNext,600)}
+ setBubble(hi,'שלום אגם! בואי נשחק משחק קצר. אין פה ציון, פשוט תנסי.');setTimeout(()=>gesture('wave'),300);say(hi);setTimeout(testNext,600)}
 function testNext(){
  if(!T)return;
  if(T.n===4&&canMic()&&!T.spoke){T.spoke=true;const t={type:'speak',prompt:'Say: “My name is Agam.”',answer:'my name is agam'};
@@ -546,7 +651,7 @@ function testNext(){
  T.used.add(TEST.indexOf(item));
  const task={type:item.type||'choice',prompt:item.q,text:item.text,options:item.opts?shuffle(item.opts):null,answer:item.ans};
  onAnswer=(a,btn)=>{locked=true;clearIdle();const ok=check(task,a)==='ok';T.asked.push({lv:item.lv,ok});
-  if(btn)btn.classList.add(ok?'right':'wrong');sfx(ok);if(ok)confetti();
+  if(btn)btn.classList.add(ok?'right':'wrong');sfx(ok);if(ok){confetti();gesture('thumb')}
   if(!ok)$('#task').querySelectorAll('.opts .tilebtn').forEach(b=>{if(b.dataset.o===task.answer)b.classList.add('right')});
   const line=ok?pick(['Yes! Well done!','Ooh, great job!','Super!','You got it!']):pick(['Good try! Here is the answer.','Almost! That\'s okay.','Nice try!']);
   feedback(ok,line+(ok||task.type!=='type'?'':' → '+task.answer));say(line);
@@ -571,7 +676,7 @@ const MAX_TASKS=6;let L=null;
 function startLesson(){
  const p=nextLesson();if(!p)return startTest();T=null;
  L={p,unit:UNITS[p.unit],tasks:[],stage:0,wrongs:0,transcript:[],pace:[],shownAt:0,times:[],start:Date.now(),firstTry:0};
- paintTeacher();show('lesson');clearBoard();$('#helpBtn').hidden=false;rate=1;onAnswer=lessonAnswer;teacherTurn('start')}
+ paintTeacher();show('lesson');clearBoard();$('#helpBtn').hidden=false;rate=1;onAnswer=lessonAnswer;setTimeout(()=>gesture('wave'),400);teacherTurn('start')}
 function lessonProg(){return `<div class="prog">${Array.from({length:MAX_TASKS},(_,i)=>{const t=L.tasks.filter(x=>!x.warm)[i];return `<i class="${t?(t.done?(t.first?'ok':'mid'):'cur'):''}"></i>`}).join('')}<span>${KINDS[L.p.kind]} · ${esc(L.unit.he)}</span></div>`}
 function curTask(){return L.tasks[L.tasks.length-1]}
 function doneN(){return L.tasks.filter(t=>t.done&&!t.warm).length}
@@ -581,11 +686,11 @@ function lessonAnswer(a,btn){
  if(a&&typeof a==='object'){t.done=true;
   if(a.game==='match'){t.first=a.mistakes<=1;L.transcript.push(`Agam finished the matching game with ${a.mistakes} mistakes (${Math.round(secs)}s).`)}
   else{t.first=a.missed.length===0;for(const w of a.missed)if(!S.hard.includes(w))S.hard.push(w);L.transcript.push(`Agam did the flashcards: knew ${a.knew}/${t.cards.length}${a.missed.length?', not yet: '+a.missed.join(', '):''}.`)}
-  if(t.first){L.firstTry++;S.stars++}sfx(true);confetti();L.stage=0;L.wrongs=0;return teacherTurn('correct')}
+  if(t.first){L.firstTry++;S.stars++}sfx(true);confetti();gesture('thumb');L.stage=0;L.wrongs=0;return teacherTurn('correct')}
  const r=check(t,a);const shown=a==='__said__'?'(said it out loud)':a;
  L.transcript.push(`Agam answered: "${shown}" → ${r==='ok'?'correct':r==='almost'?'almost correct':'wrong'} (${Math.round(secs)}s)`);
  if(r==='ok'){t.done=true;t.first=!t.warm&&L.wrongs===0&&L.stage===0;if(t.first){L.firstTry++;S.stars++}
-  if(btn)btn.classList.add('right');sfx(true);confetti();feedback(true,pick(['✓ Yes!','✓ Great!','✓ Super!','✓ You got it!','✓ Woohoo!']));
+  if(btn)btn.classList.add('right');sfx(true);confetti();if(!t.warm)gesture('thumb');feedback(true,pick(['✓ Yes!','✓ Great!','✓ Super!','✓ You got it!','✓ Woohoo!']));
   $('#starPill').textContent='⭐ '+S.stars;L.stage=0;L.wrongs=0;
   if((t.answer==='*'||t.any)&&a!=='__said__')return teacherTurn('free',a);
   return teacherTurn('correct')}
